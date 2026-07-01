@@ -153,33 +153,8 @@ Supports
 
 ```
 
-Clinical Data
-│
-▼
-Random Forest Prediction
-│
-├───────────────► Low Risk
-│
-▼
-High Risk
-│
-▼
-MRI Upload
-│
-▼
-ResNet18 CNN
-│
-▼
-Disease Stage
-│
-▼
-Groq LLM
-│
-▼
-Clinical Explanation
-│
-▼
-Recommendation Engine
+<img width="1378" height="592" alt="Screenshot 2026-06-29 212629" src="https://github.com/user-attachments/assets/aaf97a6d-cd66-459e-8352-f234b6fa30cb" />
+
 
 ```
 
@@ -366,7 +341,7 @@ It is **not** a certified medical device and must not be used as a substitute fo
 
 ## Md Arshad
 
-**Artificial Intelligence & Machine Learning Engineer**
+**Artificial Intelligence & Machine Learning Enthusiast**
 
 ### Areas of Interest
 
