@@ -152,9 +152,9 @@ Supports
 # 🏗 System Architecture
 
 ```
-
+<div align="center">
 <img width="1378" height="592" alt="Screenshot 2026-06-29 212629" src="https://github.com/user-attachments/assets/aaf97a6d-cd66-459e-8352-f234b6fa30cb" />
-
+<div>
 
 ```
 
