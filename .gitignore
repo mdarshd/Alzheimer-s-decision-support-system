@@ -1,0 +1,42 @@
+# Environment variables
+.env
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+.mypy_cache/
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Packaging
+*.egg-info/
+dist/
+build/
+
+# Jupyter / Colab
+.ipynb_checkpoints/
+*.ipynb - Colab_files/
+*.ipynb - Colab.html
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Datasets and trained model weights (large binaries — do not commit)
+data/
+models/*.pth
+prediction/models/*.pkl
+
+# Reference papers (large PDFs, not source code)
+Papers/
+
+# Logs
+*.log
