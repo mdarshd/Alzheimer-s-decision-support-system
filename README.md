@@ -80,9 +80,9 @@ Fine-tuned **ResNet18 Convolutional Neural Network**
 Supports automatic classification into:
 
 - Normal
-- Mild Dementia
-- Moderate Dementia
-- Severe Dementia
+- Mild Impairment
+- Moderate Impairment
+- Severe Impairment
 
 Includes
 
