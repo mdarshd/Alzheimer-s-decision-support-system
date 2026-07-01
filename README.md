@@ -151,15 +151,13 @@ Supports
 
 # 🏗 System Architecture
 
-The following architecture diagram illustrates the complete end-to-end workflow of the **Alzheimer's Clinical Decision Support System**, showcasing the integration of Machine Learning, Deep Learning, Explainable AI, and the Recommendation Engine.
+The following architecture diagram illustrates the complete end-to-end workflow of the **Alzheimer's Clinical Decision Support System**.
 
 <p align="center">
   <img width="1378" height="592" alt="Screenshot 2026-06-29 212629" src="https://github.com/user-attachments/assets/5ac41eef-0101-4b98-a83d-1c190cd96c99" />
 </p>
 
-<p align="center">
-  <em>Figure 1. End-to-End Architecture of the Alzheimer's Clinical Decision Support System.</em>
-</p>
+
 
 ---
 
