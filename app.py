@@ -1,18 +1,14 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
-
 from PIL import Image, ImageTk, ImageEnhance
 import torch
 import torch.nn as nn
 from torchvision import transforms
 from torchvision.models import resnet18
-
 from prediction.csv_prediction import predict_from_clinical_form
 from recommendation.recommendation_engine import get_recommendation
 from llm.llm_interface import explain_clinical_decision, explain_mri_stage
-
-# ==================== CONSTANTS ====================
 WINDOW_W, WINDOW_H = 1100, 750
 BORDER_COLOR = "#1E90FF"
 BG_COLOR = "#0E0E0E"
@@ -23,45 +19,31 @@ LIGHT_GREEN_BORDER = "#7CFF7C"
 BTN_FONT = ("Segoe UI", 12)
 BTN_PADX = 28
 BTN_PADY = 12
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 MRI_MODEL_PATH = os.path.join(BASE_DIR, "models", "mri_resnet18_stage.pth")
-
-# Index -> label produced directly by the trained ImageFolder-based model.
 ORIGINAL_LABELS = {
     0: "Mild_Impairment",
     1: "Moderate_Impairment",
     2: "No_Impairment",
     3: "Very_Mild_Impairment",
 }
-
-# The model's original ImageFolder class ordering doesn't match clinical
-# severity order, so predictions are remapped to the intended stage names.
 UPDATED_STAGE_MAP = {
     "No_Impairment": "No Impairment",
     "Very_Mild_Impairment": "Mild Impairment",
     "Mild_Impairment": "Moderate Impairment",
     "Moderate_Impairment": "Severe Impairment",
 }
-
 MRI_TRANSFORM = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
-
-# ==================== APP STATE ====================
-# Shared session state. Kept at module scope because the tkinter widget
-# callbacks defined below close over it directly.
 frames = {}
 clinical_data = {}
 clinical_result = None
 final_stage = None
-
-
 def load_mri_model():
-    """Load the trained ResNet18 MRI-staging model onto the best available device."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = resnet18(weights=None)
     model.fc = nn.Linear(model.fc.in_features, len(ORIGINAL_LABELS))
@@ -70,49 +52,32 @@ def load_mri_model():
     )
     model.eval().to(device)
     return model, device
-
-
 def show_frame(name):
-    """Raise the named frame to the top of the window stack."""
     for f in frames.values():
         f.pack_forget()
     frames[name].pack(fill="both", expand=True)
-
-
 def load_bg(path, w, h):
-    """Load and darken a background image to the given size."""
     img = Image.open(path).resize((w, h), Image.Resampling.LANCZOS)
     img = ImageEnhance.Brightness(img).enhance(0.55)
     return ImageTk.PhotoImage(img)
-
-
 def create_bg_frame(root, image_name):
-    """Create a frame with a resizable background image."""
     frame = tk.Frame(root, bg=BG_COLOR)
     canvas = tk.Canvas(frame, highlightthickness=0, bd=0)
     canvas.pack(fill="both", expand=True)
-
     def redraw(event):
         bg = load_bg(os.path.join(ASSETS_DIR, image_name), event.width, event.height)
         canvas.bg = bg
         canvas.delete("all")
         canvas.create_image(0, 0, image=bg, anchor="nw")
-
     canvas.bind("<Configure>", redraw)
     return frame
-
-
 def blue_box(parent, width=800, rely=0.45):
-    """Create a bordered content box centered in the parent frame."""
     outer = tk.Frame(parent, bg=BORDER_COLOR)
     outer.place(relx=0.5, rely=rely, anchor="center", width=width)
     inner = tk.Frame(outer, bg=BG_COLOR)
     inner.pack(fill="both", expand=True, padx=2, pady=2)
     return inner
-
-
 def themed_text(parent):
-    """Create a themed text widget used to display formatted results."""
     t = tk.Text(
         parent, wrap="word", bg=BG_COLOR, fg=FG_COLOR,
         insertbackground="white", relief="flat", bd=0,
@@ -122,10 +87,7 @@ def themed_text(parent):
     t.tag_config("body", foreground=FG_COLOR)
     t.pack(fill="both", expand=True, padx=15, pady=15)
     return t
-
-
 def build_welcome_frame(root):
-    """Build the landing/welcome screen."""
     frame = create_bg_frame(root, "welcome.png")
     frames["welcome"] = frame
 
@@ -137,13 +99,10 @@ def build_welcome_frame(root):
 
 
 def build_clinical_frame(root):
-    """Build the clinical questionnaire screen and wire up its form fields."""
     frame = create_bg_frame(root, "clinical.png")
     frames["clinical"] = frame
-
     box = blue_box(frame, width=520)
     box.grid_columnconfigure(1, weight=0)
-
     age = tk.StringVar()
     bmi = tk.StringVar()
     mmse = tk.StringVar()
@@ -232,10 +191,7 @@ def build_clinical_frame(root):
         font=BTN_FONT, padx=BTN_PADX, pady=BTN_PADY,
         command=submit_clinical,
     ).place(relx=0.5, rely=0.9, anchor="center")
-
-
 def build_clinical_result_frame(root):
-    """Build the screen that shows the clinical prediction and its explanation."""
     frame = create_bg_frame(root, "clinical.png")
     frames["clinical_result"] = frame
 
@@ -255,7 +211,6 @@ def build_clinical_result_frame(root):
     )
 
     def render_result(event=None):
-        """Populate the clinical result view with the diagnosis and its LLM explanation."""
         text_res.config(state="normal")
         text_res.delete("1.0", tk.END)
 
@@ -287,7 +242,6 @@ def build_mri_frame(root, model, device):
     frames["mri"] = frame
 
     def upload_mri():
-        """Prompt for an MRI image, classify it, and advance to the results view."""
         global final_stage
         path = filedialog.askopenfilename(
             filetypes=[("MRI Images", "*.jpg *.png")]
@@ -313,7 +267,6 @@ def build_mri_frame(root, model, device):
 
 
 def build_mri_result_frame(root):
-    """Build the screen that shows the MRI stage, recommendations, and explanation."""
     frame = create_bg_frame(root, "mri.png")
     frames["mri_result"] = frame
 
@@ -321,7 +274,6 @@ def build_mri_result_frame(root):
     text_mri = themed_text(box_mri_res)
 
     def render_mri(event=None):
-        """Populate the MRI result view with the stage, recommendations, and LLM explanation."""
         text_mri.config(state="normal")
         text_mri.delete("1.0", tk.END)
 
@@ -351,7 +303,6 @@ def build_mri_result_frame(root):
 
 
 def main():
-    """Build the application window and start the tkinter event loop."""
     root = tk.Tk()
     root.title("Alzheimer's Clinical Decision Support System")
     root.geometry(f"{WINDOW_W}x{WINDOW_H}")
